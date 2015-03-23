@@ -17,7 +17,7 @@ buildEventData = (type, related_id = null, subject_id = Subject.current?.zoonive
   eventData['experiment'] = Experiments.ACTIVE_EXPERIMENT
   eventData['errorCode'] = ""
   eventData['errorDescription'] = ""
-  eventData['cohort'] = Experiments.currentCohort
+  eventData['cohort'] = Experiments.getCohort()
   eventData['userID'] = "(anonymous)"
   eventData
 
@@ -34,16 +34,6 @@ addUserDetailsToEventData = (eventData, user_id = User.current?.zooniverse_id) -
         eventData['userID'] = currentUserID
     .always =>
       eventualEventData.resolve eventData
-  eventualEventData.promise()
-
-addCohortToEventData = (eventData) ->
-  eventualEventData = new $.Deferred
-  Experiments.getCohort()
-  .then (cohort) =>
-    if cohort?
-      eventData['cohort'] = cohort
-  .always =>
-    eventualEventData.resolve eventData
   eventualEventData.promise()
 
 ###
@@ -78,14 +68,8 @@ logEvent = (type, related_id = '', user_id = User.current?.zooniverse_id, subjec
   eventData = buildEventData(type, related_id, subject_id)
   addUserDetailsToEventData(eventData, user_id)
   .always (eventData) =>
-    if Experiments.currentCohort?
-      logToGeordi eventData
-      logToGoogle eventData
-    else
-      addCohortToEventData(eventData)
-      .always (eventData) =>
-        logToGeordi eventData
-        logToGoogle eventData
+    logToGeordi eventData
+    logToGoogle eventData
 
 ###
 This will log an error in Geordi only. In order to guarantee that this works, no new AJAX calls for cohort or user IP are initiated

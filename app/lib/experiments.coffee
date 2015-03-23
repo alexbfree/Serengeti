@@ -21,18 +21,7 @@ RETRY_INTERVAL = 300000 # (5 minutes) #
 This determines how many random subjects will be served for every inserted image. For example, a value of 3 means that
   for every inserted subject, there will be three random subjects
 ###
-INSERTION_RATIO = 3
-
-###
-Until the experiment server supports user profile storage, the profiles will be hardcoded here for demo purposes.
-###
-SPECIES_INTEREST_PROFILES = {
-  "1821039": ['giraffe','lionmale','lionfemale'] # alexbfree (interesting)
-  "1928567": ['giraffe','lionmale','lionfemale'] # alexzootest1 (interesting)
-  "1928568": ['leopard','baboon'] # alexzootest2 (interesting)
-  "1928569": ['zebra','gazellethomsons'] # alexzootest3 (control)
-  "1928585": ['hippopotamus'] # alexzootest17 (control)
-}
+INSERTION_RATIO = 1
 
 ###
 set up pools of subjects that are known to contain each species, for those species with at least 20 subjects
@@ -47,9 +36,7 @@ SPECIES_SUBJECTS = {
   'aardwolf': ['ASG0001m7p', 'ASG000ckdq', 'ASG0013pie', 'ASG000sxc7', 'ASG000290o', 'ASG000cryh', 'ASG0013xkk',
                'ASG0009jw4', 'ASG00069cc', 'ASG00061ef', 'ASG0006gdj', 'ASG00052yb', 'ASG0006ho8', 'ASG000syj0',
                'ASG0002uji', 'ASG00055s1', 'ASG0019h36', 'ASG00168hd', 'ASG000eix3', 'ASG000tgdt'],
-  'baboon': ['ASG001aoqg', 'ASG000rbfg', 'ASG0007w1r', 'ASG00004jx', 'ASG000qqsx', 'ASG0002fg8', 'ASG000n1sc',
-             'ASG000rbfh', 'ASG0017db1', 'ASG000da05', 'ASG0005iie', 'ASG000ol0a', 'ASG00106p2', 'ASG001817b',
-             'ASG0003y6w', 'ASG000cccm', 'ASG000rrqm', 'ASG0011q27', 'ASG000zsqy', 'ASG001drv3'],
+  'baboon': ['ASG0007w1r', 'ASG00004jx', 'ASG0002fg8', 'ASG000da05'],
   'batearedfox': ['ASG0005k62', 'ASG00018f3', 'ASG0001cp3', 'ASG00046kz', 'ASG0001i6w', 'ASG0018yoy', 'ASG00017ck',
                   'ASG0019ly7', 'ASG00031xg', 'ASG0001e67', 'ASG0006wd6', 'ASG0014zvn', 'ASG0003t0t', 'ASG0001und',
                   'ASG000yqi1', 'ASG000e9sd', 'ASG0019kl5', 'ASG000yqgk', 'ASG0002kby', 'ASG0002bvz'],
@@ -91,9 +78,7 @@ SPECIES_SUBJECTS = {
   'genet': ['ASG0015jt1', 'ASG00190s5', 'ASG0003s1f', 'ASG0002fih', 'ASG0004cs4', 'ASG0004bx9', 'ASG0006dqd',
             'ASG0008jm8', 'ASG00016ly', 'ASG0002fis', 'ASG0019h7p', 'ASG0005oqz', 'ASG00190u9', 'ASG0008auq',
             'ASG00003g4', 'ASG0000aho', 'ASG0007409', 'ASG00173ha', 'ASG0018wht', 'ASG00190vg'],
-  'giraffe': ['ASG0008tqq', 'ASG000pa6q', 'ASG000e99e', 'ASG001b0i6', 'ASG0019ee3', 'ASG0001d4l', 'ASG0009nkz',
-              'ASG000rdrj', 'ASG0009prx', 'ASG0017407', 'ASG000tadm', 'ASG000eenb', 'ASG001brb0', 'ASG001f9ds',
-              'ASG0013sul', 'ASG000y46i', 'ASG00089mc', 'ASG000pngo', 'ASG0017wby', 'ASG000qin4'],
+  'giraffe': ['ASG0008tqq', 'ASG000e99e', 'ASG0001d4l', 'ASG0009nkz','ASG0008tqq'],
   'guineafowl': ['ASG00066dz', 'ASG0005cjs', 'ASG000qpi0', 'ASG0003wfn', 'ASG00041i0', 'ASG000ztgd', 'ASG0007e37',
                  'ASG000zigd', 'ASG00088xr', 'ASG000r6jl', 'ASG0001wk9', 'ASG00060jm', 'ASG001e7sv', 'ASG0001a74',
                  'ASG001eruj', 'ASG0010mm9', 'ASG0000unr', 'ASG000o65g', 'ASG00060dg', 'ASG000r0s1'],
@@ -130,15 +115,11 @@ SPECIES_SUBJECTS = {
   'koribustard': ['ASG00071cw', 'ASG000cehu', 'ASG0012i1d', 'ASG0005cvb', 'ASG00007ow', 'ASG00074dp', 'ASG000ct6q',
                   'ASG000tqci', 'ASG00013ea', 'ASG001beoj', 'ASG000ae16', 'ASG000d4w3', 'ASG000f15m', 'ASG0001evj',
                   'ASG0000h8b', 'ASG0003lzj', 'ASG0006i7w', 'ASG000ql9z', 'ASG00001kn', 'ASG000z0bw'],
-  'leopard': ['ASG000okx8', 'ASG000efqk', 'ASG00069xl', 'ASG001b0w2', 'ASG000ojq1', 'ASG0006a06', 'ASG000bl7s',
-              'ASG00069vv', 'ASG000ssoo', 'ASG0005ccf', 'ASG0018lnm', 'ASG000okt1', 'ASG00007mt', 'ASG0004ekv',
-              'ASG000okao', 'ASG000sf6w', 'ASG0018wg1', 'ASG000okx7', 'ASG000566q', 'ASG000cinm'],
+  'leopard': ['ASG000efqk', 'ASG00069xl', 'ASG0006a06', 'ASG000bl7s'],
   'lionfemale': ['ASG0006e6t', 'ASG0015t55', 'ASG001amkz', 'ASG000o5z9', 'ASG0010ha3', 'ASG000702o', 'ASG0004jeq',
                  'ASG001d7nr', 'ASG0004jhi', 'ASG0011wfb', 'ASG0005ci8', 'ASG0003utl', 'ASG0007eby', 'ASG000r7zx',
                  'ASG00165a7', 'ASG001dn4h', 'ASG0015jpx', 'ASG0012dmy', 'ASG0000svh', 'ASG001bhar'],
-  'lionmale': ['ASG0001i0w', 'ASG0005mdn', 'ASG0012dmi', 'ASG000732v', 'ASG0006e45', 'ASG0006e5q', 'ASG0012w5r',
-               'ASG0011ran', 'ASG0000adn', 'ASG000b5ut', 'ASG0001i1o', 'ASG000o5za', 'ASG000cdl9', 'ASG0008j0n',
-               'ASG0006eg3', 'ASG0006e36', 'ASG0019a7z', 'ASG000dfgw', 'ASG0006zz2', 'ASG0005mbt'],
+  'lionmale': ['ASG0001i0w', 'ASG0005mdn', 'ASG000732v', 'ASG0006e45', 'ASG0006e5q'],
   'mongoose': ['ASG001axg0', 'ASG0013pvb', 'ASG000nsqi', 'ASG0012f1u', 'ASG000q4d1', 'ASG0007d1t', 'ASG0011bzx',
                'ASG0001hqs', 'ASG0015toe', 'ASG00084wm', 'ASG00011vl', 'ASG0002hzy', 'ASG00038tm', 'ASG0014ntv',
                'ASG000szbp', 'ASG0004bzq', 'ASG0000hb4', 'ASG000berj', 'ASG0002ufm', 'ASG0018mk9'],
@@ -187,9 +168,7 @@ SPECIES_SUBJECTS = {
   'wildebeest': ['ASG000ei3r', 'ASG00132d6', 'ASG0018wc1', 'ASG000ak3y', 'ASG0007gyk', 'ASG001a6v3', 'ASG00063sw',
                  'ASG000clsf', 'ASG000awxi', 'ASG000tt3p', 'ASG000bvfv', 'ASG0006vw4', 'ASG000tfbx', 'ASG000tfcd',
                  'ASG0005l6a', 'ASG000n8of', 'ASG001epvd', 'ASG000dsmr', 'ASG00098n5', 'ASG00123z6'],
-  'zebra': ['ASG000764f', 'ASG000pe4e', 'ASG0004ryj', 'ASG0009twx', 'ASG000nngy', 'ASG000db59', 'ASG000nqaw',
-            'ASG000bgm5', 'ASG000y7m8', 'ASG000c4n3', 'ASG000b23c', 'ASG000fhju', 'ASG000yfqv', 'ASG000anpe',
-            'ASG000n2ct', 'ASG000my08', 'ASG000976y', 'ASG00156lq', 'ASG000n8v3', 'ASG000a8o5'],
+  'zebra': ['ASG000764f', 'ASG0004ryj', 'ASG0009twx', 'ASG000db59'],
   'zorilla': ['ASG0018pj3', 'ASG00145sp', 'ASG000qd1j', 'ASG0019ks3', 'ASG0018ym2', 'ASG0007fct', 'ASG0007egh',
               'ASG000s9kh', 'ASG000sxkm', 'ASG000b64t', 'ASG0004rya', 'ASG0007eay', 'ASG0011pfu', 'ASG00145tu',
               'ASG0001kxk', 'ASG0003uhf', 'ASG000atfw', 'ASG0003bl0', 'ASG00055qf', 'ASG00146a0'],
@@ -200,13 +179,41 @@ less than 20 examples available, therefore these are excluded.
 ###
 EXCLUDED_SPECIES = ['steenbok', 'vulture', 'bat', 'cattle']
 
+###
+Until the experiment server supports user profile storage, the profiles will be hardcoded here for demo purposes.
+###
+SPECIES_INTEREST_PROFILES = {
+  "1821039": ['giraffe','lionmale','lionfemale'] # alexbfree (interesting)
+  "1928567": ['giraffe','lionmale','lionfemale'] # alexzootest1 (interesting)
+  "1928568": ['leopard','baboon'] # alexzootest2 (interesting)
+  "1928569": ['zebra','gazellethomsons'] # alexzootest3 (control)
+  "1928585": ['hippopotamus'] # alexzootest17 (control)
+}
+
+###
+due to temporary issues with getting the deferred chaining and next event triggering to play nicely, will temporarily hard code user cohort mappings for the demo
+###
+USER_COHORTS = {
+  "1821039": 'interesting' # alexbfree
+  "1928567": 'interesting' # alexzootest1
+  "1928568": 'interesting' # alexzootest2
+  "1928569": 'control' # alexzootest3
+  "1928585": 'control' # alexzootest17
+}
+
+SUBJECT_CONTAINS = {
+
+}
+
+for species,subjects of SPECIES_SUBJECTS
+  for subject in subjects
+    if species in ['giraffe','lionmale','lionfemale','zebra','gazellethomsons','leopard','baboon','hippopotamus']
+      if SUBJECT_CONTAINS[subject]?
+        SUBJECT_CONTAINS[subject].push subject
+      else
+        SUBJECT_CONTAINS[subject]=[species]
 
 # VARIABLES #
-
-###
-Do not modify this initialization, it is used by the code below to keep track of the cohort so as to avoid checking many times
-###
-currentCohort = null
 
 ###
 Do not modify this initialization, it is used to keep track of when the last experiment server failure was
@@ -225,37 +232,19 @@ interventionHistories = {}
 This method will contact the experiment server to find the cohort for this user & subject in the specified experiment
 ###
 getCohort = (user_id = User.current?.zooniverse_id, subject_id = Subject.current?.zooniverseId) ->
-  eventualCohort = new $.Deferred
-  if currentCohort?
-    eventualCohort.resolve currentCohort
+  cohort = USER_COHORTS[user_id]
+  if cohort?
+    cohort
   else
-    if ACTIVE_EXPERIMENT?
-      now = new Date().getTime()
-      if lastFailedAt?
-        timeSinceLastFail = now - lastFailedAt.getTime()
-      if lastFailedAt == null || timeSinceLastFail > RETRY_INTERVAL
-        try
-          $.get('http://experiments.zooniverse.org/experiment/' + ACTIVE_EXPERIMENT + '?userid=' + user_id)
-          .then (data) =>
-            currentCohort = data.cohort
-            eventualCohort.resolve data.cohort
-          .fail =>
-            lastFailedAt = new Date()
-            AnalyticsLogger.logError "500", "Couldn't retrieve experimental split data", "error"
-            eventualCohort.resolve null
-        catch error
-          eventualCohort.resolve null
-      else
-        eventualCohort.resolve null
-    else
-      eventualCohort.resolve null
-  eventualCohort.promise()
+    # TODO log error with missing user, fallback to control
+    'control'
 
 exports.getCohort = getCohort
-exports.currentCohort = currentCohort
 exports.ACTIVE_EXPERIMENT = ACTIVE_EXPERIMENT
 exports.INSERTION_RATIO = INSERTION_RATIO
 exports.SPECIES_INTEREST_PROFILES = SPECIES_INTEREST_PROFILES
 exports.SPECIES_SUBJECTS = SPECIES_SUBJECTS
 exports.EXCLUDED_SPECIES = EXCLUDED_SPECIES
 exports.interventionHistories = interventionHistories
+exports.USER_COHORTS = USER_COHORTS
+exports.SUBJECT_CONTAINS = SUBJECT_CONTAINS

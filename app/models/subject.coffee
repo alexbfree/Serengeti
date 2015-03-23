@@ -7,78 +7,16 @@ seasons = require 'lib/seasons'
 Intervention = require 'lib/intervention_agent'
 
 class Subject extends Model
-  @configure 'Subject', 'zooniverseId', 'workflowId', 'location', 'coords', 'metadata', 'cohort', 'source','testFn','initializeAgent','ensureCohortIsKnown'
+  @configure 'Subject', 'zooniverseId', 'workflowId', 'location', 'agent', 'coords', 'metadata', 'source', 'cohort'
 
   @queueLength: 3
   @current: null
-  @cohort = null
-  @agent = null
-  @testFn = =>
-    console.log 'testFn'
-
-  @initializeAgent = =>
-    if Experiments.ACTIVE_EXPERIMENT? && @cohort?
-      if @cohort == 'interesting'
-        @agent = new Intervention.InterestingAgent
-      else
-        if @cohort != 'control'
-          # TODO log unknown/unset cohort
-          console.log 'unknown or unset cohort'
-        @agent = new Intervention.ControlAgent
-      if @cohort == "interesting"
-        history = @agent.data.interventionHistory
-        if history.active
-          # initialize experimental subject sets when first starting experiment
-          if not history.intervention_subjects_viewed?
-            history.intervention_subjects_viewed = []
-          if not history.control_subjects_viewed?
-            history.control_subjects_viewed = []
-          if history.intervention_subjects_available.length == 0
-            mostInterestingSpecies = @agent.getMostInterestingSpecies 2
-            for species in mostInterestingSpecies
-              @agent.addInterventionSubjectsFor species
-          if history.control_subjects_available.length == 0
-            # add placeholders for future retrieval of INSERTION_RATIO times as many random subjects as there are insertions
-            controlSubjectsToAddForThisExperiment = Experiments.INSERTION_RATIO * history.intervention_subjects_available.length
-            history.control_subjects_available = []
-            for [1..controlSubjectsToAddForThisExperiment]
-              history.control_subjects_available.push @PLACEHOLDER
-          if history.control_subjects_available.length == 0 && history.intervention_subjects_available.length == 0
-            # TODO log the end of the experiment for this user & fall back to control agent
-            history.active = false
-
-  @ensureCohortIsKnown = =>
-    self = @
-    eventualCohort = new $.Deferred
-    Experiments.getCohort()
-    .then (cohort) =>
-      if cohort?
-        self.cohort = cohort
-      else
-        # TODO log problem with cohort
-        self.cohort = 'control'
-    .fail =>
-      # TODO log problem with cohort
-      self.cohort = 'control'
-    .always =>
-      eventualCohort.resolve self.cohort
-    eventualCohort.promise()
+  @agent: null
+  @source: "Random"
+  @cohort: null
 
   # since we don't get hold of a random subject's ID until time of GETting it, we use a placeholder to represent that random subject.
   @PLACEHOLDER = "(random-ID)"
-
-  constructor: ->
-    @source = "Random"
-
-    debugger
-
-    @ensureCohortIsKnown()
-      .then (
-        console.log 'then'
-        @initializeAgent()
-      )
-    super
-
 
   # randomly select a subject from across control & intervention subjects, update the intervention history, and return it
   @extractSubjectAtRandom: =>
@@ -96,8 +34,6 @@ class Subject extends Model
           # intervention subject
           history.intervention_subjects_available = history.intervention_subjects_available.filter (value) -> value isnt subjectID
           history.intervention_subjects_viewed.push subjectID
-    console.log 'updated arrays:'
-    console.log history
     subjectID
 
   @nextForControlCohort: (callback) =>
@@ -110,35 +46,75 @@ class Subject extends Model
     @advance fetcher, callback
 
   @next: (callback) =>
-    console.log 'nexting'
-    debugger
-    @.constructor.ensureCohortIsKnown()
-    .then(
-      if Experiments.ACTIVE_EXPERIMENT? && @cohort?
-        if @cohort == "interesting"
-          # pick one randomly across control & intervention subjects
-          subjectID = @extractSubjectAtRandom
-          console.log 'experimental pick:'
-          console.log subjectID
-          if subjectID?
-            @current.destroy() if @current?
+    @cohort = Experiments.getCohort()
+
+    if Experiments.ACTIVE_EXPERIMENT? && @cohort?
+      if @cohort == "interesting"
+        @agent = new Intervention.InterestingAgent()
+        history = @agent.data.interventionHistory
+        if history.active
+          # initialize experimental subject sets when first starting experiment
+          if not history.intervention_subjects_viewed?
+            history.intervention_subjects_viewed = []
+          if not history.control_subjects_viewed?
+            history.control_subjects_viewed = []
+          if history.control_subjects_available.length == 0 && history.intervention_subjects_available.length == 0
+            # TODO log the end of the experiment for this user & fall back to control agent
+            history.active = false
+          if history.intervention_subjects_available.length == 0
+            mostInterestingSpecies = @agent.getMostInterestingSpecies 2
+            for species in mostInterestingSpecies
+              @agent.addInterventionSubjectsFor species
+          if history.control_subjects_available.length == 0
+            # add placeholders for future retrieval of INSERTION_RATIO times as many random subjects as there are insertions
+            controlSubjectsToAddForThisExperiment = Experiments.INSERTION_RATIO * history.intervention_subjects_available.length
+            history.control_subjects_available = []
+            for [1..controlSubjectsToAddForThisExperiment]
+              history.control_subjects_available.push @PLACEHOLDER
+      else
+        # if @cohort != 'control'
+          # TODO log unknown/unset cohort
+        @agent = new Intervention.ControlAgent()
+    @cohort = Experiments.getCohort()
+    if Experiments.ACTIVE_EXPERIMENT? && Experiments.getCohort()?
+      if @cohort == "interesting"
+        # pick one randomly across control & intervention subjects
+        subjectID = @extractSubjectAtRandom()
+        if subjectID?
+          @current.destroy() if @current?
+          if @count()==0
             if subjectID == @PLACEHOLDER
+              Subject.source = "Randomly selected"
               fetcher = @fetch 1
             else
-              @source = "Chosen due to interest"
+              specieses = Experiments.SUBJECT_CONTAINS[subjectID]
+              if specieses?
+                speciesName = specieses[0];
+                speciesName="lions" if speciesName=="lionmale"
+                speciesName="zebras" if speciesName=="zebra"
+                speciesName="baboons" if speciesName=="baboon"
+                speciesName="giraffes" if speciesName=="giraffe"
+                speciesName="gazelles" if speciesName=="gazellethomsons"
+                speciesName="leopards" if speciesName=="leopard"
+                speciesName="hippos" if speciesName=="hippopotamus"
+                Subject.source = "Inserted; User likes " + speciesName
+              else
+                Subject.source = "Inserted; User likes this species"
               fetcher = @subjectFetch subjectID
-            @advance fetcher, callback
           else
-            # user has exhausted all their subjects in the experiment; fall back to control
-            @nextForControlCohort callback
+            Subject.source = "Already loaded"
+          @advance fetcher, callback
+        else
+          # user has exhausted all their subjects in the experiment; fall back to control
+          Subject.source = "Random; User finished experiment."
+          @nextForControlCohort callback
       else
-        console.log 'falling back to control'
-        console.log '(because cohort is:'
-        console.log @cohort
-        console.log ')'
-        # TODO: log that failed to run experimental split for interesting user - fall back to control
+        Subject.source = "Randomly selected via control queue"
         @nextForControlCohort callback
-    )
+    else
+      @source = "Random; Insertion failed"
+      # TODO: log that failed to run experimental split for interesting user - fall back to control
+      @nextForControlCohort callback
 
   # after subjects have been loaded, this method actually selects the first (or triggers out of subjects event)
   @selectFirstNonEmptySubject: =>
@@ -148,18 +124,17 @@ class Subject extends Model
     if numberOfSubjectsAlreadyLoaded is 0
       @trigger 'no-subjects'
     else
-      @source = "Random"
       @first().select()
 
   # ensures that the next subject is selected, either now or once deferred chain is complete
   @advance: (deferred, callback) =>
     numberOfSubjectsAlreadyLoaded = @count()
     if numberOfSubjectsAlreadyLoaded is 0
-      nexter = deferred.pipe =>
+      nexter = deferred.always =>
         @selectFirstNonEmptySubject()
     else
       nexter = new $.Deferred
-      nexter.done =>
+      nexter.always =>
         @selectFirstNonEmptySubject()
       nexter.resolve()
     nexter.then callback
@@ -187,13 +162,15 @@ class Subject extends Model
   # get a specific subject by ID from the API and instantiate it as a model
   @subjectFetch: (subjectID) =>
     subjectFetcher = new $.Deferred
-
     getter = Api.get("/projects/serengeti/subjects/#{subjectID}").deferred
 
     getter.done (rawSubject) =>
       subjectFetcher.resolve (@fromJSON rawSubject)
 
     getter.fail ->
+      # subject not found, fall back to control
+      Subject.source = "Random (Missing Subject)"
+      Subject.fetch 1
       subjectFetcher.resolve null
 
     subjectFetcher.promise()
@@ -214,6 +191,7 @@ class Subject extends Model
     subject
 
   select: ->
+    console.log 'select'
     @constructor.current = @
     @trigger 'select'
 

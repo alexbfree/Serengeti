@@ -8,7 +8,6 @@ class InterventionAgent
     @experiment = experiment
     @cohort = cohort
     @data = data
-    @connection = null
 
   # abstract method to be implemented by children
   saveInterventionHistory: ->
@@ -69,7 +68,7 @@ class InterestingAgent extends InterventionAgent
 
   addInterventionSubjectsFor: (species) ->
     if species not in Experiments.EXCLUDED_SPECIES
-      @data.interventionHistory.intervention_subjects_available.push Experiments.SPECIES_SUBJECTS[species]
+      @data.interventionHistory.intervention_subjects_available = @data.interventionHistory.intervention_subjects_available.concat Experiments.SPECIES_SUBJECTS[species]
     else
       # TODO log the fact we skipped a species for this user.
 
