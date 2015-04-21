@@ -1,6 +1,6 @@
 $ = require('jqueryify')
 User = require 'zooniverse/lib/models/user'
-Subject = require 'models/subject'
+ExperimentalSubject = require 'models/experimental_subject'
 AnalyticsLogger = require 'lib/analytics'
 
 # CONSTANTS #
@@ -31,7 +31,7 @@ lastFailedAt = null
 ###
 This method will contact the experiment server to find the cohort for this user & subject in the specified experiment
 ###
-getCohort = (user_id = User.current?.zooniverse_id, subject_id = Subject.current?.zooniverseId) ->
+getCohort = (user_id = User.current?.zooniverse_id, subject_id = ExperimentalSubject.current?.zooniverseId) ->
   eventualCohort = new $.Deferred
   if currentCohort?
     eventualCohort.resolve currentCohort
