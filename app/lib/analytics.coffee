@@ -38,10 +38,10 @@ addUserDetailsToEventData = (eventData, user_id = User.current?.zooniverse_id) -
 
 addCohortToEventData = (eventData) ->
   eventualEventData = new $.Deferred
-  Experiments.getCohort()
-  .then (cohort) =>
-    if cohort?
-      eventData['cohort'] = cohort
+  Experiments.getExperimentState()
+  .then (experimentData) =>
+    if experimentData.cohort?
+      eventData['cohort'] = experimentData.cohort
   .always =>
     eventualEventData.resolve eventData
   eventualEventData.promise()

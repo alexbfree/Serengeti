@@ -69,10 +69,10 @@ class SubjectViewer extends Controller
     if @classification
       @classification.bind 'change', @onClassificationChange
       @classification.bind 'add-species', @onClassificationAddSpecies
-      Experiments.getCohort()
-      .then (cohort) =>
-        if cohort?
-          @classification.metadata.cohort = cohort
+      Experiments.getExperimentState()
+      .then (experimentalData) =>
+        if experimentalData.cohort?
+          @classification.metadata.cohort = experimentalData.cohort
       .always =>
         @html template @classification
 
