@@ -1,10 +1,15 @@
 Subject = require('models/subject')
 
 class ExperimentalSubject extends Subject
-  @next: (callback) ->
-    console.log this instanceof ExperimentalSubject
-    debugger
+
+  @othermethod: ->
+    "hello"
     
+  @next: (callback) ->
+    console.log @
+    console.log @othermethod()
+    debugger
+
 
 
 module.exports = ExperimentalSubject
