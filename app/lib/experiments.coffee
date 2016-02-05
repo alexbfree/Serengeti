@@ -35,35 +35,44 @@ module.exports = class ExperimentServerClient
   SOURCE_NORMAL: "Normal Random"
   SOURCE_BLANK: "Blank"
   SOURCE_NON_BLANK: "Non-Blank"
+
   ###
   When an error is encountered from the experiment server, this is the period, in milliseconds, that the code below will wait before any further attempts to contact it.
   ###
   RETRY_INTERVAL: 300000 # (5 minutes) #
+
   # VARIABLES #
+
   ###
   Do not modify this initialization, it is used by the code below to keep track of the current participant
   ###
   currentParticipant: null
+
   ###
   Do not modify this initialization, it is used by the code below to keep track of the current cohort (which can change for a participant as they progress)
   ###
   currentCohort: null
+
   ###
   Do not modify this initialization, it is used to keep track of when the last experiment server failure was
   ###
   lastFailedAt: null
+
   ###
   Do not modify this initialization, it is used to keep track of which subjects are insertions and which are random
   ###
   sources: {}
+
   ###
   Do not modify this initialization, it is used to track any changes of cohort for this user
   ###
   excludedReason: null
+
   ###
   Do not modify this initialization, it is used to track when the user has finished the experiment
   ###
   experimentCompleted: false
+
   ###
   Upon logout, user must be forgotten
   ###
@@ -72,39 +81,69 @@ module.exports = class ExperimentServerClient
     @excludedReason = null
     @currentCohort = null
     @currentParticipant = null
-    @Geordi.UserStringGetter.currentUserID = null
+    @Geordi.UserStringGetter.currentUserID = @Geordi.UserStringGetter.ANONYMOUS
+
+
+  ###
+  Exclude user from experiment, and log why
+  ###
+  excludeFromExperiment: (userID,reason) =>
+    @experimentCompleted = true
+    @excludedReason = reason
+    @currentCohort = null
+    @currentParticipant = null
+    @Geordi.logEvent {
+      type: 'experimentExcluded'
+      userID: userID
+      relatedID: reason
+      data: {
+        userID: userID
+        reason: reason
+      }
+    }
 
   ###
   This method will contact the experiment server to find the cohort for this user in the specified experiment
+
+  If the current user cannot be uniquely identified in any way i.e. currentUserID == @Geordi.UserStringGetter.ANONYMOUS
+  then we do not return a cohort - this user cannot participate, so we exclude them from the experiment
   ###
   getCohort: =>
+    currentUserIDForThisRoundtrip = @Geordi.UserStringGetter.currentUserID
     eventualCohort = new $.Deferred
-    if @ACTIVE_EXPERIMENT?
-      now = new Date().getTime()
-      if @currentCohort?
-        eventualCohort.resolve @currentCohort
+    if @ACTIVE_EXPERIMENT? & !@experimentCompleted
+      if currentUserIDForThisRoundtrip == @Geordi.UserStringGetter.ANONYMOUS
+        @excludeFromExperiment(currentUserIDForThisRoundtrip,"Anonymous users cannot participate in experiments.")
+        eventualCohort.resolve null
       else
-        if @lastFailedAt?
-          timeSinceLastFail = now - @lastFailedAt.getTime()
-        if @lastFailedAt == null || timeSinceLastFail > @RETRY_INTERVAL
-          try
-            $.get(@EXPERIMENT_SERVER_URL+'experiment/' + @ACTIVE_EXPERIMENT + '?userid=' + @Geordi.UserStringGetter.currentUserID)
-            .then (participant) =>
-              @currentCohort = participant.cohort
-              @currentParticipant = participant
-              eventualCohort.resolve participant.cohort
-            .fail =>
-              @lastFailedAt = new Date()
-              @Geordi.logEvent {
-                type: "error"
-                errorCode: "500"
-                errorDescription: "Couldn't retrieve experimental cohort data"
-              }
-              eventualCohort.resolve null
-          catch error
-            eventualCohort.resolve null
+        now = new Date().getTime()
+        if @currentCohort?
+          eventualCohort.resolve @currentCohort
         else
-          eventualCohort.resolve null
+          if currentUserIDForThisRoundtrip == @Geordi.UserStringGetter.ANONYMOUS
+            @excludeFromExperiment("Anonymous users cannot participate in experiments.")
+          else
+            if @lastFailedAt?
+              timeSinceLastFail = now - @lastFailedAt.getTime()
+            if @lastFailedAt == null || timeSinceLastFail > @RETRY_INTERVAL
+              try
+                $.get(@EXPERIMENT_SERVER_URL+'experiment/' + @ACTIVE_EXPERIMENT + '?userid=' + currentUserIDForThisRoundtrip)
+                .then (participant) =>
+                  @currentCohort = participant.cohort
+                  @currentParticipant = participant
+                  eventualCohort.resolve participant.cohort
+                .fail =>
+                  @lastFailedAt = new Date()
+                  @Geordi.logEvent {
+                    type: "error"
+                    errorCode: "500"
+                    errorDescription: "Couldn't retrieve experimental cohort data"
+                  }
+                  eventualCohort.resolve null
+              catch error
+                eventualCohort.resolve null
+            else
+              eventualCohort.resolve null
     else
       eventualCohort.resolve null
     eventualCohort.promise()

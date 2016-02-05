@@ -42,19 +42,21 @@ app = {}
 User.bind 'sign-in', ->
   $('html').toggleClass 'signed-in', User.current?
   if User.current?
+    Geordi.UserStringGetter.rememberCurrentUserID(User.current.zooniverse_id)
     Geordi.logEvent 'login'
   else
-    ExperimentServer.resetExperimentalFlags()
     Geordi.logEvent 'logout'
+    Geordi.UserStringGetter.forgetCurrentUserID()
+    ExperimentServer.resetExperimentalFlags()
 
-Api.init
-  host: if !!location.href.match /demo|beta/
-    'https://dev.zooniverse.org'
-  else if +location.port < 1024
-    'https://api.zooniverse.org'
-  else
-    'https://dev.zooniverse.org'
-    #"#{location.protocol}//#{location.hostname}:3000"
+[host, proxyPath] = if location.origin is 'http://preview.zooniverse.org'
+  ['https://dev.zooniverse.org', '/proxy']
+else if +location.port < 1024
+  [window.location.origin, '/_ouroboros_api/proxy']
+else
+  ['https://dev.zooniverse.org', '/proxy']
+
+Api.init {host, proxyPath}
 
 # TODO: Don't count on the proxy frame to have no loaded yet.
 
@@ -63,9 +65,11 @@ Api.proxy.el().one 'load', ->
     sortedSeasons = for season, {_id: id, total, complete} of project.seasons
       total ?= 0
       complete ?= 0
-      {season, id, total, complete}
+      name = if season is '0' then 'Lost Season' else "Season #{ season }"
+      {season, id, name, total, complete}
 
     sortedSeasons.sort (a, b) ->
+      return 1 if a.season is '0'
       a.season > b.season
 
     seasons.push sortedSeasons...

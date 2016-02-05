@@ -1,6 +1,8 @@
 {
   "name": "serengeti",
   "version": "0.0.1",
+  "engineStrict" : true,
+  "engines" : { "node" : "0.10.38" },
   "dependencies": {
     "es5-shimify": "0.0.1",
     "hem": "0.1.9",
@@ -14,15 +16,13 @@
     "t7e": "0.2.3",
     "underscore": "1.4.2",
     "zooniverse": "zooniverse/Zooniverse#98ffd4b",
-    "zooniverse-geordi-client": "^1.0.0",
-    "zooniverse-user-string-getter": "^1.1.1",
+    "zooniverse-user-string-getter": "^1.1.18",
+    "zooniverse-geordi-client": "^1.2.18",
     "zootorial": "0.2.4"
   },
   "scripts": {
     "start": "hem server --port 6371",
-    "deploy-to-staging": "hem build && publisssh ./public zooniverse-demo/serengeti && rm -rf ./public/application.*",
-    "deploy-to-production": "hem build && publisssh ./public zooniverse-static/www.snapshotserengeti.org && rm -rf ./public/application.*",
-    "deploy-experiment": "hem build && publisssh ./public zooniverse-static/www.snapshotserengeti.org/happyuserexperiment && rm -rf ./public/application.*",
-    "deploy-to-demo": "hem build && publisssh ./public demo.zooniverse.org/serengeti && rm -rf ./public/application.*"
+    "deploy-to-staging": "hem build && publisssh ./public zooniverse-static/preview.zooniverse.org/serengeti && rm -rf ./public/application.*",
+    "deploy-to-production": "hem build && publisssh ./public zooniverse-static/www.snapshotserengeti.org && rm -rf ./public/application.*"
   }
 }

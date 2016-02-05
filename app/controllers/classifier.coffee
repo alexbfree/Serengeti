@@ -92,17 +92,10 @@ class Classifier extends Controller
     @subjectViewer.setClassification @classification
     @animalSelector.setClassification @classification
 
-    if !!subject.metadata.tutorial
-      @tutorial.start()
-    else
-      @tutorial.end()
-      @tutorial.dialog.close()
-
   onNoLocalSubjects: =>
     getEmptySubject().select()
 
   onUserSignIn: =>
-    tutorialDone = User.current?.project.tutorial_done
     doingTutorial = Subject.current?.metadata.tutorial
 
     if tutorialDone

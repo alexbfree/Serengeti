@@ -5,7 +5,10 @@ User = require 'zooniverse/lib/models/user'
 GeordiClient = require 'zooniverse-geordi-client'
 
 checkZooUserID = ->
-  User.current?.zooniverse_id
+  if User.current?.zooniverse_id?
+    User.current?.zooniverse_id?
+  else
+    Geordi.UserStringGetter.ANONYMOUS
 
 checkZooSubject = ->
   Subject.current?.zooniverseId
