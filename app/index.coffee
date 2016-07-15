@@ -58,22 +58,32 @@ Api.init {host, proxyPath}
 
 # TODO: Don't count on the proxy frame to have no loaded yet.
 
+# Lost Season (0) is effectively season 8.5, in ordering
+# Extended Survey (999) is effectively season 9.5, in ordering
+
+seasonMapper = (season_no) ->
+  if season_no is '0'
+    8.5
+  else if season_no is '999'
+    9.5
+  else
+    season_no
+
 Api.proxy.el().one 'load', ->
   Api.get '/projects/serengeti', (project) ->
     sortedSeasons = for season, {_id: id, total, complete} of project.seasons
       total ?= 0
       complete ?= 0
-      name = if season is '0' then 'Lost Season' else "Season #{ season }"
+      if season is '0'
+        name = 'Lost Season'
+      else if season is '999'
+        name = 'Extended Survey'
+      else
+        name = "Season #{ season }"
       {season, id, name, total, complete}
 
     sortedSeasons.sort (a, b) ->
-      # Lost Season is effectively season 8.5, in ordering
-      if a.season is '0'
-        8.5 - b.season
-      else if b.season is '0'
-        a.season - 8.5
-      else
-        a.season - b.season
+      seasonMapper(a.season) - seasonMapper(b.season)
 
     seasons.push sortedSeasons...
 
